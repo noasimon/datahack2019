@@ -43,6 +43,10 @@ class Images(object):
     def __len__(self):
         return len(self._tar_index)
 
+    @property
+    def paths(self):
+        return self._tar_index.keys()
+
     def __getitem__(self, path):
         # Grab an image buffer based on its path and decode it
         offset, size = self._tar_index[path]
@@ -56,6 +60,17 @@ class Images(object):
 
     def __exit__(self, type, value, tb):
         self.fid.close()
+
+
+def read_pose(pose_path):
+    # Read the pose points from file
+    data = None
+    with open(pose_path, 'rb') as fid:
+        data = pkl.load(fid)
+    keypoints = data['keypoints']
+    scores = data['scores']
+    paths = data['paths']
+    return paths, keypoints, scores
 
 
 def read_signatures(sigs_path):

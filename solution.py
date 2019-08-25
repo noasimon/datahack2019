@@ -5,6 +5,7 @@ import cPickle as pkl
 from data import read_signatures
 from utils import enumerate_paths
 from utils import split_by
+from evaluate import evaluate
 
 
 def cosine_similarity(a, b):
@@ -45,22 +46,7 @@ def mean_signatures(signatures, indices):
     return mean_signatures
 
 
-def compute_accuracy(similarity_matrix, test_labels, verbose=True):
-    # Compute and display top 1 / 5 accuracies
-    num_classes = similarity_matrix.shape[1]
-    gt_scores = similarity_matrix[range(len(similarity_matrix)), test_labels]
-    rank = np.sum(similarity_matrix >= gt_scores[:, np.newaxis], axis=1)
-    top1_accuracy = np.mean(rank == 1) * 100
-    top5_accuracy = np.mean(rank <= 5) * 100
-    if verbose:
-        print 'top 1 accuracy {:.2f}% (naive: {:.2f}%)'.format(
-            top1_accuracy, 100. / num_classes)
-        print 'top 5 accuracy {:.2f}% (naive: {:.2f}%)'.format(
-            top5_accuracy, 500. / num_classes)
-    return top1_accuracy, top5_accuracy
-
-
-def main(sigs_path, train_to_test_ratio=0.5):
+def main(sigs_path, submission_path, train_to_test_ratio=0.5):
     # Read the imagenet signatures from file
     paths, signatures = read_signatures(sigs_path)
     # Enumerate the frame paths based on person and video
@@ -85,8 +71,14 @@ def main(sigs_path, train_to_test_ratio=0.5):
     # Predict classes using cosine similarity
     similarity_matrix = cosine_similarity(test_sigs, train_sigs)
 
+    # Crate a submission - a sorted list of predictions, best match on the left.
+    result = '\n'.join([','.join(map(str, line))
+                        for line in similarity_matrix.argsort(axis=1)[:, :-6:-1]])
+    with open(submission_path, 'wt') as fid:
+        fid.write(result)
+
     # Compute and display top 1 / 5 accuracies
-    compute_accuracy(similarity_matrix, test_labels)
+    evaluate(submission_path, test_labels)
 
 
 if __name__ == '__main__':
@@ -94,7 +86,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Naive solution')
     parser.add_argument(
-        '--sigs_path',  help='path for signatures pkl', default='signatures_64.pkl')
+        '--sigs_path',  help='path for signatures pkl', default='signatures.pkl')
+    parser.add_argument(
+        '--submission_path',  help='path for output submission', default='submission.csv')
     parser.add_argument(
         '--train_to_test_ratio',  help='train to test ratio', type=float, default=0.5)
     args = parser.parse_args()

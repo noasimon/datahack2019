@@ -42,9 +42,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Data Visualization')
     parser.add_argument(
-        '--sigs_path',  help='path for signatures pkl', default='signatures_64.pkl')
+        '--sigs_path',  help='path for signatures pkl', default='signatures.pkl')
     parser.add_argument(
-        '--images_path',  help='path for images tar', default='images_64.tar')
+        '--images_path',  help='path for images tar', default='images.tar')
     parser.add_argument(
         '--samples_per_person',  help='samples per person to display', type=int, default=16)
     args = parser.parse_args()
