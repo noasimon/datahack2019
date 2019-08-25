@@ -1,4 +1,4 @@
-![Orcam Logo](https://github.com/orcam-public/datahack2019/blob/master/docs/source/_static/img/pytorch-logo-dark.png)
+![Orcam](resources/orcam.png)
 
 # Faceless recognition
 Our brains use faces as the main classifier for a person’s identity. We even have a specific “face area” in the brain dedicated to this task. Computer vision tools are based on the same idea and use facial features for identifying people. 
