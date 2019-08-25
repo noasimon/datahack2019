@@ -2,7 +2,9 @@
 import os
 import numpy as np
 import cPickle as pkl
-from IPython import embed
+from data import read_signatures
+from utils import enumerate_paths
+from utils import split_by
 
 
 def cosine_similarity(a, b):
@@ -12,32 +14,20 @@ def cosine_similarity(a, b):
     return _a.dot(_b.T)
 
 
-def enumerate_paths(paths):
-    # Extract sequences/channels/people from the frame-paths
-    sequences = [os.path.dirname(p) for p in paths]
-    channels = [os.path.dirname(s) for s in sequences]
-    people = [os.path.dirname(c) for c in channels]
-
-    # Enumerate the frames based on channels and people
-    unique_channels, channel_ids = np.unique(channels, return_inverse=True)
-    unique_people, person_ids = np.unique(people, return_inverse=True)
-    return person_ids, channel_ids
-
-
-def train_test_split(person_ids, channel_ids, train_to_test_ratio=0.5):
-    # Splits the channels of each person to train/test according to the train_to_test_ratio
+def train_test_split(person_ids, video_ids, train_to_test_ratio=0.5):
+    # Splits the videos of each person to train/test according to the train_to_test_ratio
 
     # Find borders where person id changes
     sections = np.where(np.diff(person_ids, 1))[0] + 1
-    # Channels split by person id
-    person_channels = np.split(channel_ids, sections)
+    # videos split by person id
+    person_videos = np.split(video_ids, sections)
     # Indices split by person id
     frame_indices = np.split(np.arange(len(person_ids)), sections)
 
-    # Split channels train and test according to the train_to_test_ratio
+    # Split videos train and test according to the train_to_test_ratio
     train_indices = []
     test_indices = []
-    for pid, cids, fidx in zip(person_ids, person_channels, frame_indices):
+    for pid, cids, fidx in zip(person_ids, person_videos, frame_indices):
         split_index = train_to_test_ratio * (cids[-1] - cids[0]) + cids[0]
         is_train = cids <= split_index
         train_indices.append(fidx[is_train])
@@ -46,12 +36,6 @@ def train_test_split(person_ids, channel_ids, train_to_test_ratio=0.5):
     test_indices = np.hstack(test_indices)
     assert len(set(train_indices).intersection(set(test_indices))) == 0
     return train_indices, test_indices
-
-
-def split_by(data, indices):
-    sections = np.where(np.diff(indices))[0] + 1
-    split_data = np.split(data, sections)
-    return split_data
 
 
 def mean_signatures(signatures, indices):
@@ -78,15 +62,11 @@ def compute_accuracy(similarity_matrix, test_labels, verbose=True):
 
 def main(sigs_path, train_to_test_ratio=0.5):
     # Read the imagenet signatures from file
-    with open(sigs_path, 'rb') as fid:
-        data = pkl.load(fid)
-    signatures = data['signatures']
-    paths = data['paths']
-
-    # Enumerate the frame paths based on person and channel
-    person_ids, channel_ids = enumerate_paths(paths)
-    # For each person, split his set of channels to train and test
-    train_indices, test_indices = train_test_split(person_ids, channel_ids,
+    paths, signatures = read_signatures(sigs_path)
+    # Enumerate the frame paths based on person and video
+    person_ids, video_ids = enumerate_paths(paths)
+    # For each person, split his set of videos to train and test
+    train_indices, test_indices = train_test_split(person_ids, video_ids,
                                                    train_to_test_ratio)
 
     # Solution
@@ -95,12 +75,12 @@ def main(sigs_path, train_to_test_ratio=0.5):
     train_sigs = split_by(signatures[train_indices], person_ids[train_indices])
     train_sigs = np.vstack([np.mean(ts, axis=0) for ts in train_sigs])
 
-    # Find the mean signature for each test - channel and assign its ground-truth person id
-    test_sigs = split_by(signatures[test_indices], channel_ids[test_indices])
+    # Find the mean signature for each test - video and assign its ground-truth person id
+    test_sigs = split_by(signatures[test_indices], video_ids[test_indices])
     test_sigs = np.vstack([np.mean(ts, axis=0) for ts in test_sigs])
     # Ground truth labels
     test_labels = np.array([pids[0] for pids in
-                            split_by(person_ids[test_indices], channel_ids[test_indices])])
+                            split_by(person_ids[test_indices], video_ids[test_indices])])
 
     # Predict classes using cosine similarity
     similarity_matrix = cosine_similarity(test_sigs, train_sigs)
@@ -110,7 +90,13 @@ def main(sigs_path, train_to_test_ratio=0.5):
 
 
 if __name__ == '__main__':
-    import sys
-    if len(sys.argv) != 2:
-        raise ValueErrur('Missing signatures path')
-    main(sys.argv[1])
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Naive solution')
+    parser.add_argument(
+        '--sigs_path',  help='path for signatures pkl', default='signatures_64.pkl')
+    parser.add_argument(
+        '--train_to_test_ratio',  help='train to test ratio', type=float, default=0.5)
+    args = parser.parse_args()
+
+    main(**vars(args))
