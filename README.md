@@ -58,8 +58,8 @@ See our data visualization and solution demos to see an example of how to use th
 In this demo, use the [https://www.tensorflow.org/guide/embedding](Tensorboard Embedding Projector) to visualize our data, embedded based on the pre-computed imagenet signatures.
 To run the visualization simply call [visualization.py](visualization.py) from the directory the data was saved to. Once complete you should see the following lines:
 ```bash
-Visualization ready
-run:      tensorboard --logdir=runs
+# Visualization ready
+# run:      tensorboard --logdir=runs
 ```
 
 Then simply start a tensorboard server by calling 
