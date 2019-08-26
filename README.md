@@ -56,7 +56,7 @@ paths, signatures = read_signatures('signatures.pkl')
 See our data visualization and solution demos to see an example of how to use this data. When you use these features make sure to use the "paths" to synchronize it with the rest of the data.
 
 ## Data Visualization
-In this demo, use the [https://www.tensorflow.org/guide/embedding](Tensorboard Embedding Projector) to visualize our data, embedded based on the pre-computed imagenet signatures.
+In this demo, use the [Tensorboard Embedding Projector](https://www.tensorflow.org/guide/embedding) to visualize our data, embedded based on the pre-computed imagenet signatures.
 To run the visualization simply call [visualization.py](visualization.py) from the directory the data was saved to. Once complete you should see the following lines:
 ```bash
 # Visualization ready
