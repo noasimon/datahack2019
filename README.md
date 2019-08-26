@@ -51,7 +51,8 @@ The pose points are ordered similarly to the data in the [MS COCO Keypoint detec
 A pickle with a sampled set of imagenet signatures computed over the crops. The reason we are providing only a sample of the evaluations is that the full set of signatures will take up about X4 of the original images file. 
 ```python
 from data import read_signatures
-paths, signatures = read_signatures('signatures.pkl')```
+paths, signatures = read_signatures('signatures.pkl')
+```
 See our data visualization and solution demos to see an example of how to use this data. When you use these features make sure to use the "paths" to synchronize it with the rest of the data.
 
 ## Data Visualization
