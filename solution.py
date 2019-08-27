@@ -72,13 +72,11 @@ def main(sigs_path, submission_path, train_to_test_ratio=0.5):
     similarity_matrix = cosine_similarity(test_sigs, train_sigs)
 
     # Crate a submission - a sorted list of predictions, best match on the left.
-    result = '\n'.join([','.join(map(str, line))
-                        for line in similarity_matrix.argsort(axis=1)[:, :-6:-1]])
-    with open(submission_path, 'wt') as fid:
-        fid.write(result)
+    ranking = similarity_matrix.argsort(axis=1)
+    submission = [line.tolist() for line in ranking[:, :-6:-1]]
 
     # Compute and display top 1 / 5 accuracies
-    evaluate(submission_path, test_labels)
+    evaluate(submission, test_labels)
 
 
 if __name__ == '__main__':
