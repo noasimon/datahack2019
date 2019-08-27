@@ -14,7 +14,7 @@ def evaluate(submission, test_labels, verbose=True):
     if verbose:
         print 'top 1 accuracy {:.2f}%'.format(top1_accuracy)
         print 'top 5 accuracy {:.2f}%'.format(top5_accuracy)
-        print 'mean score: {:.2f}%'.format(score)
+        print 'mean score: {:.2f}'.format(score)
     return top1_accuracy, top5_accuracy
 
 
