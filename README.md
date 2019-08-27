@@ -9,11 +9,22 @@ We invite you to recognize celebrities based on sequences of low-resolution imag
 As we know you are limited on time and resources, you will also receive a set of features we prepared to help you focus on the algorithms. 
 Are you up to the challenge?
 
+## Evaluation
+Hackers will be scored in the following manner - 
+Top 5 predictions should be submitted for each sample video, in order of appearance.
+``` python
+submission = [[best_index, second_best, ..., fifth_best],
+              ...
+              [best_index, second_best, ..., fifth_best]]
+```
+A correct index in the *ith* index will add *100-10*i* points to your score. So for example, hitting Top 1 will add 100 points to your score, while hitting 3rd will give you 80 points. Not including the correct index in the Top-5 list will not reward points. See the Solution Example to see how to wasily create a submission based on a similarity matrix.
+You can submit to the leaderboard by calling:
+``` python
+submit('Team Name', submission)
+```
+
 ## Rules
 You are welcome to use any additional data and open-source libraries as you please. As well as manually tagging the data we provided here. Original solutions and clever demos are also eligible to compete on the main event so make it interesting!
-
-## Evaluation
-TBD
 
 ##  The data
 ### [images.tar](http://link/to/images.tar) 
@@ -104,13 +115,10 @@ Finally, we rank the best top-5 predictions from best to worst, based on the cos
 # Predict classes using cosine similarity
 similarity_matrix = cosine_similarity(test_sigs, train_sigs)
 # Crate a submission - a sorted list of predictions, best match on the left.
-result = '\n'.join([','.join(map(str, line))
-                    for line in similarity_matrix.argsort(axis=1)[:, :-6:-1]])
-with open(submission_path, 'wt') as fid:
-    fid.write(result)
+ranking = similarity_matrix.argsort(axis=1)
+submission = [line.tolist() for line in ranking[:, :-6:-1]]
 # Compute and display top 1 / 5 accuracies
-evaluate(submission_path, test_labels)
+evaluate(submission, test_labels)
 # top 1 accuracy 19.83%
 # top 5 accuracy 46.55%
-
 ```
