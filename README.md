@@ -121,6 +121,6 @@ submission = [line.tolist() for line in ranking[:, :-6:-1]]
 # Compute and display top 1 / 5 accuracies
 evaluate(submission, test_labels)
 # top 1 accuracy 19.83%
-#top 5 accuracy 46.55%
+# top 5 accuracy 46.55%
 # mean score: 40.09
 ```
