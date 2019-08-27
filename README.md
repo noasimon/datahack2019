@@ -9,11 +9,22 @@ We invite you to recognize celebrities based on sequences of low-resolution imag
 As we know you are limited on time and resources, you will also receive a set of features we prepared to help you focus on the algorithms. 
 Are you up to the challenge?
 
+## Evaluation
+Hackers will be scored in the following manner - 
+Top 5 predictions should be submitted for each sample video, in order of appearance.
+``` python
+submission = [[best_index, second_best, ..., fifth_best],
+              ...
+              [best_index, second_best, ..., fifth_best]]
+```
+A correct index in the *ith* index will add *100-10*i* points to your score. So for example, hitting Top 1 will add 100 points to your score, while hitting 3rd will give you 80 points. Not including the correct index in the Top-5 list will not reward points. See the Solution Example to see how to wasily create a submission based on a similarity matrix.
+You can submit to the leaderboard by calling:
+``` python
+submit('Team Name', submission)
+```
+
 ## Rules
 You are welcome to use any additional data and open-source libraries as you please. As well as manually tagging the data we provided here. Original solutions and clever demos are also eligible to compete on the main event so make it interesting!
-
-## Evaluation
-TBD
 
 ##  The data
 ### [images.tar](http://link/to/images.tar) 
@@ -51,15 +62,16 @@ The pose points are ordered similarly to the data in the [MS COCO Keypoint detec
 A pickle with a sampled set of imagenet signatures computed over the crops. The reason we are providing only a sample of the evaluations is that the full set of signatures will take up about X4 of the original images file. 
 ```python
 from data import read_signatures
-paths, signatures = read_signatures('signatures.pkl')```
+paths, signatures = read_signatures('signatures.pkl')
+```
 See our data visualization and solution demos to see an example of how to use this data. When you use these features make sure to use the "paths" to synchronize it with the rest of the data.
 
 ## Data Visualization
-In this demo, use the [https://www.tensorflow.org/guide/embedding](Tensorboard Embedding Projector) to visualize our data, embedded based on the pre-computed imagenet signatures.
+In this demo, use the [Tensorboard Embedding Projector](https://www.tensorflow.org/guide/embedding) to visualize our data, embedded based on the pre-computed imagenet signatures.
 To run the visualization simply call [visualization.py](visualization.py) from the directory the data was saved to. Once complete you should see the following lines:
 ```bash
-Visualization ready
-run:      tensorboard --logdir=runs
+# Visualization ready
+# run:      tensorboard --logdir=runs
 ```
 
 Then simply start a tensorboard server by calling 
@@ -103,13 +115,10 @@ Finally, we rank the best top-5 predictions from best to worst, based on the cos
 # Predict classes using cosine similarity
 similarity_matrix = cosine_similarity(test_sigs, train_sigs)
 # Crate a submission - a sorted list of predictions, best match on the left.
-result = '\n'.join([','.join(map(str, line))
-                    for line in similarity_matrix.argsort(axis=1)[:, :-6:-1]])
-with open(submission_path, 'wt') as fid:
-    fid.write(result)
+ranking = similarity_matrix.argsort(axis=1)
+submission = [line.tolist() for line in ranking[:, :-6:-1]]
 # Compute and display top 1 / 5 accuracies
-evaluate(submission_path, test_labels)
+evaluate(submission, test_labels)
 # top 1 accuracy 19.83%
 # top 5 accuracy 46.55%
-
 ```
