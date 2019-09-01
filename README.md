@@ -28,7 +28,7 @@ submit('Team Name', submission)
 You are welcome to use any additional data and open-source libraries as you please. As well as manually tagging the data we provided here. Original solutions and clever demos are also eligible to compete on the main event so make it interesting!
 
 ##  The data
-### [images.tar](http://link/to/images.tar) 
+### [images.tar](data/images.tar) 
 A tar file with all the image sequences. Files are divided by identity, video, and sequence as follows:
 ```bash
 person_0000/video_0000/seq_0000/frame_0000.jpg
@@ -46,7 +46,7 @@ with Images('images.tar') as images:
 # read image "person_0013/channel_0081/seq_0009/frame_00425.jpg"" of shape (64, 64, 3)
 ```
 
-### [pose.pkl](http://link/to/pose.pkl) 
+### [pose.pkl](data/pose.pkl) 
 A pickle file with 17 pose keypoints detected for each frame along with the detection scores. As w rule of thumb, you should filter out points with score 0 or below. 
 ```python
 from data import read_pose
@@ -59,7 +59,7 @@ The pose points are ordered similarly to the data in the [MS COCO Keypoint detec
  "left_hip", "right_hip", "left_knee","right_knee", "left_ankle" "right_ankle"]
 ```
  
-### [signatures.pkl](http://link/to/signatures.pkl) 
+### [signatures.pkl](data/signatures.pkl) 
 A pickle with a sampled set of imagenet signatures computed over the crops. The reason we are providing only a sample of the evaluations is that the full set of signatures will take up about X4 of the original images file. 
 ```python
 from data import read_signatures
