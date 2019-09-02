@@ -30,8 +30,9 @@ class Images(object):
         tar_index = {}
         with tarfile.TarFile(path, "r") as tar:
             for tarinfo in tar:
-                offset_and_size = (tarinfo.offset_data, tarinfo.size)
-                tar_index[tarinfo.name] = offset_and_size
+                if tarinfo.isfile():
+                  offset_and_size = (tarinfo.offset_data, tarinfo.size)
+                  tar_index[tarinfo.name] = offset_and_size
         return tar_index
 
     @staticmethod
