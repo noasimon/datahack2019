@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import numpy as np
-import cPickle as pkl
+import pickle as pkl
 from data import read_signatures
 from utils import enumerate_paths
 from utils import split_by

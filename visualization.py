@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import torch
 import numpy as np
 from data import Images
@@ -33,8 +35,8 @@ def main(sigs_path, images_path, samples_per_person=16):
     writer.add_embedding(torch.from_numpy(sampled_sigs),
                          metadata=meta_data,
                          label_img=label_img)
-    print 'Visualization ready'
-    print 'run: \t tensorboard --logdir=runs'
+    print('Visualization ready')
+    print('run: \t tensorboard --logdir=runs')
 
 
 if __name__ == '__main__':

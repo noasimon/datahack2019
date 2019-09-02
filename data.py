@@ -1,8 +1,10 @@
+from __future__ import print_function
+
 import os
 import cv2
 import tarfile
 import numpy as np
-import cPickle as pkl
+import pickle as pkl
 
 
 class Images(object):
@@ -12,9 +14,9 @@ class Images(object):
             # index file is the same as tar path but  .pkl
             index_path = path[:-3] + 'pkl'
         if not os.path.exists(index_path):
-            print 'Indexing tar file, this could take a few minutes...'
+            print('Indexing tar file, this could take a few minutes...')
             self._tar_index = self._index_tar(path)
-            print 'done'
+            print('done')
             # Save index file
             with open(index_path, 'wb') as fid:
                 pkl.dump(self._tar_index, fid)
@@ -22,7 +24,7 @@ class Images(object):
             with open(index_path, 'rb') as fid:
                 self._tar_index = pkl.load(fid)
         self.fid = open(path, 'rb')
-        self.keys = self._tar_index.keys()
+        self.keys = sorted(self._tar_index.keys())
 
     @staticmethod
     def _index_tar(path):
@@ -30,9 +32,8 @@ class Images(object):
         tar_index = {}
         with tarfile.TarFile(path, "r") as tar:
             for tarinfo in tar:
-                if tarinfo.isfile():
-                  offset_and_size = (tarinfo.offset_data, tarinfo.size)
-                  tar_index[tarinfo.name] = offset_and_size
+                offset_and_size = (tarinfo.offset_data, tarinfo.size)
+                tar_index[tarinfo.name] = offset_and_size
         return tar_index
 
     @staticmethod
@@ -51,7 +52,7 @@ class Images(object):
 
     def __getitem__(self, item):
         if isinstance(item, int):
-            item = self.keys[path]
+            item = self.keys[item]
         # Grab an image buffer based on its path and decode it
         offset, size = self._tar_index[item]
         self.fid.seek(offset)
@@ -66,11 +67,22 @@ class Images(object):
         self.fid.close()
 
 
+def compatible_load(path):
+    # pickle loading compatible for pyton 2/3
+    data = None
+    with open(path, 'rb') as fid:
+        try:
+            data = pkl.load(fid)
+        except UnicodeDecodeError:
+            # Python 3 compatability
+            fid.seek(0)
+            data = pkl.load(fid, encoding='latin1')
+    return data
+
+
 def read_pose(pose_path):
     # Read the pose points from file
-    data = None
-    with open(pose_path, 'rb') as fid:
-        data = pkl.load(fid)
+    data = compatible_load(pose_path)
     keypoints = data['keypoints']
     scores = data['scores']
     paths = data['paths']
@@ -79,9 +91,7 @@ def read_pose(pose_path):
 
 def read_signatures(sigs_path):
     # Read the imagenet signatures from file
-    data = None
-    with open(sigs_path, 'rb') as fid:
-        data = pkl.load(fid)
+    data = compatible_load(sigs_path)
     signatures = data['signatures']
     paths = data['paths']
     return paths, signatures
