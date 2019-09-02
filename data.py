@@ -22,6 +22,7 @@ class Images(object):
             with open(index_path, 'rb') as fid:
                 self._tar_index = pkl.load(fid)
         self.fid = open(path, 'rb')
+        self.keys = self._tar_index.keys()
 
     @staticmethod
     def _index_tar(path):
@@ -45,11 +46,13 @@ class Images(object):
 
     @property
     def paths(self):
-        return self._tar_index.keys()
+        return self.keys
 
-    def __getitem__(self, path):
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            item = self.keys[path]
         # Grab an image buffer based on its path and decode it
-        offset, size = self._tar_index[path]
+        offset, size = self._tar_index[item]
         self.fid.seek(offset)
         buff = self.fid.read(size)
         image = self._decode_image(buff)[:, :, ::-1]
