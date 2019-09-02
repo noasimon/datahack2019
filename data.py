@@ -10,6 +10,7 @@ import pickle as pkl
 class Images(object):
     # A class for easy and fast reading of images packed in a tar file
     def __init__(self, path, index_path=None):
+        self.path = path
         if index_path is None:
             # index file is the same as tar path but  .pkl
             index_path = path[:-3] + 'pkl'
@@ -23,7 +24,13 @@ class Images(object):
         else:
             with open(index_path, 'rb') as fid:
                 self._tar_index = pkl.load(fid)
+        self.index_path = index_path
+        # Open the tar file
         self.fid = open(path, 'rb')
+        # Get its size for later checking the indexing validity
+        self.fid.seek(0, 2)
+        self.tar_size = self.fid.tell()
+        # save a sorted list of the tar file paths (keys)
         self.keys = sorted(self._tar_index.keys())
 
     @staticmethod
@@ -32,8 +39,9 @@ class Images(object):
         tar_index = {}
         with tarfile.TarFile(path, "r") as tar:
             for tarinfo in tar:
-                offset_and_size = (tarinfo.offset_data, tarinfo.size)
-                tar_index[tarinfo.name] = offset_and_size
+                if tarinfo.isfile():
+                    offsets_and_size = (tarinfo.offset, tarinfo.offset_data, tarinfo.size)
+                    tar_index[tarinfo.name] = offsets_and_size
         return tar_index
 
     @staticmethod
@@ -50,14 +58,30 @@ class Images(object):
     def paths(self):
         return self.keys
 
-    def __getitem__(self, item):
+    def _getitem(self, item):
+        # A private _getitem for better readability
+        # If item is an index, replace with the path at that index
         if isinstance(item, int):
             item = self.keys[item]
         # Grab an image buffer based on its path and decode it
-        offset, size = self._tar_index[item]
+        offset, data_offset, size = self._tar_index[item]
+        # Go to start of record
         self.fid.seek(offset)
+        # Check indexing validty
+        tarinfo = tarfile.TarInfo.frombuf(self.fid.read(data_offset - offset))
+        if tarinfo.path != item:
+            raise tarfile.InvalidHeaderError
         buff = self.fid.read(size)
         image = self._decode_image(buff)[:, :, ::-1]
+        return image
+
+    def __getitem__(self, item):
+        try:
+            image = self._getitem(item)
+        except (tarfile.InvalidHeaderError, tarfile.TruncatedHeaderError, tarfile.EmptyHeaderError):
+            error_str = 'Index file "{}" does not match tarfile "{}". Remove the index file and try again.'
+            raise IOError(error_str.format(self.index_path, self.path))
+
         return image
 
     def __enter__(self):
