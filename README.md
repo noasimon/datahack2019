@@ -39,7 +39,7 @@ person_0000/video_0000/seq_0000/frame_0001.jpg
 Tar files are pretty sluggish to work with, so we wrote the [Images](data.py#L8) class to make it easier for you to use this data without having to untar it. Here's an example:
 ```python
 from data import Images
-with Images('images.tar') as images:
+with Images('data/images.tar') as images:
     path = images.paths[0]
     image = images[path]
     print 'read image "{}"" of shape {}'.format(path, image.shape)
@@ -50,7 +50,7 @@ with Images('images.tar') as images:
 A pickle file with 17 pose keypoints detected for each frame along with the detection scores. As w rule of thumb, you should filter out points with score 0 or below. 
 ```python
 from data import read_pose
-paths, keypoints, scores = read_pose('pose.pkl')
+paths, keypoints, scores = read_pose('data/pose.pkl')
 ```
 The pose points are ordered similarly to the data in the [MS COCO Keypoint detection challenge](http://cocodataset.org/#keypoints-2019):
 ```python
@@ -63,7 +63,7 @@ The pose points are ordered similarly to the data in the [MS COCO Keypoint detec
 A pickle with a sampled set of imagenet signatures computed over the crops. The reason we are providing only a sample of the evaluations is that the full set of signatures will take up about X4 of the original images file. 
 ```python
 from data import read_signatures
-paths, signatures = read_signatures('signatures.pkl')
+paths, signatures = read_signatures('data/signatures.pkl')
 ```
 See our data visualization and solution demos to see an example of how to use this data. When you use these features make sure to use the "paths" to synchronize it with the rest of the data.
 
