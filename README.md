@@ -25,9 +25,9 @@ submit('Team Name', submission)
 ```
 
 ## Rules
-You are welcome to use any additional data and open-source libraries as you please. As well as manually tagging the data we provided here. Original solutions and clever demos are also eligible to compete on the main event so make it interesting!
+You are welcome to use any additional data and open-source libraries as you please. As well as manually tagging the data we provided here. 
 
-##  The data
+##  The training data
 ### [images.tar](data/images.tar) 
 A tar file with all the image sequences. Files are divided by identity, video, and sequence as follows:
 ```bash
@@ -66,6 +66,9 @@ from data import read_signatures
 paths, signatures = read_signatures('signatures.pkl')
 ```
 See our data visualization and solution demos to see an example of how to use this data. When you use these features make sure to use the "paths" to synchronize it with the rest of the data.
+
+## The evaluation data
+Evaluation data will have the same structure as the training data, except all paths will be stripped from the "person_####" folder. Note that the evaluation data may contain some additional identities, to make manual labeling less appealing. You will not be scored on these identities.
 
 ## Data Visualization
 In this demo, use the [Tensorboard Embedding Projector](https://www.tensorflow.org/guide/embedding) to visualize our data, embedded based on the pre-computed imagenet signatures.
