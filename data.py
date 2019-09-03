@@ -5,6 +5,7 @@ import cv2
 import tarfile
 import numpy as np
 import pickle as pkl
+import sys
 
 
 class Images(object):
@@ -68,7 +69,7 @@ class Images(object):
         # Go to start of record
         self.fid.seek(offset)
         # Check indexing validty
-        tarinfo = tarfile.TarInfo.frombuf(self.fid.read(data_offset - offset))
+        tarinfo = tarfile.TarInfo.frombuf(self.fid.read(data_offset - offset), sys.getfilesystemencoding(), 'surrogateescape')
         if tarinfo.path != item:
             raise tarfile.InvalidHeaderError
         buff = self.fid.read(size)
